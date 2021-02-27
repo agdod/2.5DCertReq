@@ -70,7 +70,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # GameDevHq FileBase Assest Plugin
-/[Gg]ame[Dd]ev[Hh][Qq]/
+/[Aa]ssets/[Gg]ame[Dd]ev[Hh][Qq]/
+/[Aa]ssets/[Gg]ame[Dd]ev[Hh][Qq].meta
 
 # TextMesh Pro Plugin
-/[Tt]ext[Mm]esh\ [Pp]ro/
+/[Aa]ssets/[Tt]ext[Mm]esh\ [Pp]ro/
+/[Aa]ssets/[Tt]ext[Mm]esh\ [Pp]ro.meta
