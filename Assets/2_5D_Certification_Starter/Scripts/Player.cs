@@ -7,12 +7,13 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 	[Header("Movement Varibles")]
-	[Range(10.0f, 20.0f)]
+	[Range(5.0f, 20.0f)]
 	[SerializeField] private float _speed;
-	[Range(-1.0f, 2.0f)]
+	[Range(-1.0f, 30.0f)]
 	[SerializeField] private float _gravityModifier;
 	[Range(0f, 30.0f)]
 	[SerializeField] private float _jumpHeight;
+	
 
 
 	private Vector3 _direction;
@@ -20,6 +21,9 @@ public class Player : MonoBehaviour
 	private float _yVelocity;
 	private bool _isJumping;
 	private bool _isFlipped;
+	private Vector3 _snapToPostClimb;
+	[SerializeField]
+	private bool _isHanging;
 
 	// Components
 	private Animator _anim;
@@ -50,6 +54,13 @@ public class Player : MonoBehaviour
 
 		if (_cController != null)
 		{
+			if (_isHanging)
+			{
+				if (Input.GetKeyDown(KeyCode.E))
+				{
+					_anim.SetTrigger("Climb");
+				}
+			}
 			GetMovement();
 		}
 	}
@@ -59,6 +70,7 @@ public class Player : MonoBehaviour
 
 		if (_cController.isGrounded)
 		{
+			_isHanging = false;
 			// Checked has already jumped - if grounded then has landed.
 			if (_isJumping)
 			{
@@ -86,8 +98,18 @@ public class Player : MonoBehaviour
 		}
 		else
 		{
-			// Not grounded fall to ground
-			_yVelocity += Physics.gravity.y * _gravityModifier * Time.deltaTime;
+			// Not grounded fall to ground, if not hanging.
+			if (!_isHanging)
+			{
+				_yVelocity += Physics.gravity.y * _gravityModifier * Time.deltaTime;
+			}
+			else if (_isHanging)
+			{
+				// is hanging dont fall! Stop all movement.
+				_yVelocity = 0;
+				_velcoity = Vector3.zero;
+			}
+			
 		}
 		_velcoity.y = _yVelocity;
 		_cController.Move(_velcoity * Time.deltaTime);
@@ -96,7 +118,44 @@ public class Player : MonoBehaviour
 	private void JumpAction()
 	{
 		_anim.SetBool("IsJump", true);
+		//_anim.SetFloat("Speed", 0.0f);
 		_isJumping = true;
 		_yVelocity = _jumpHeight;
+	}
+
+	public void ActivateLedgeGrab(Vector3 snapTo, LedgeChecker ledge)
+	{
+		// trigger the ledge grab animation
+		_anim.SetBool("LedgeGrab",true);
+		// Snap to the correct position, disbale Character controller to enable snapping.
+		_cController.enabled = false;
+		transform.position = snapTo;
+		_cController.enabled = true;
+		// Freeze the gravity.
+		_isHanging = true;
+
+		// REset variable and animation bools
+		_isJumping = false;
+		
+		_snapToPostClimb = ledge.ClimbSnapTo;
+	}
+
+	public void SnapToPostClimb()
+	{
+		// Reset Parameters after climbing up
+		_anim.SetBool("IsJump", false);
+		_anim.SetFloat("Speed", 0.0f);
+
+		Debug.Log("Disabled CController.");
+		_cController.enabled = false;
+		Debug.Log("Snap to position.");
+		transform.position = _snapToPostClimb;
+		Debug.Log("REenabled CController.");
+		_cController.enabled = true;
+		_isHanging = false;
+		_isJumping = false;
+		_anim.SetBool("LedgeGrab", false);
+		// Standup
+		//_anim.SetTrigger("StandUp");
 	}
 }
