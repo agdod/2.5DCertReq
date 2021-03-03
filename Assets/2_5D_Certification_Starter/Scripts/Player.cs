@@ -77,6 +77,10 @@ public class Player : MonoBehaviour
 				_isJumping = false;
 				_anim.SetBool("IsJump", false);
 			}
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				JumpAction();
+			}
 			float horizontal = Input.GetAxisRaw("Horizontal");
 			_anim.SetFloat("Speed", Mathf.Abs(horizontal));
 			if (horizontal < 0 && !_isFlipped)
@@ -91,17 +95,16 @@ public class Player : MonoBehaviour
 			}
 			_direction = new Vector3(0, 0, horizontal);
 			_velcoity = _direction * _speed;
-			if (Input.GetKeyDown(KeyCode.Space))
-			{
-				JumpAction();
-			}
+			
 		}
-		else
+		else if (!_cController.isGrounded)
 		{
 			// Not grounded fall to ground, if not hanging.
 			if (!_isHanging)
 			{
+				// Calcutate downward velocity.
 				_yVelocity += Physics.gravity.y * _gravityModifier * Time.deltaTime;
+				
 			}
 			else if (_isHanging)
 			{
@@ -118,7 +121,6 @@ public class Player : MonoBehaviour
 	private void JumpAction()
 	{
 		_anim.SetBool("IsJump", true);
-		//_anim.SetFloat("Speed", 0.0f);
 		_isJumping = true;
 		_yVelocity = _jumpHeight;
 	}
